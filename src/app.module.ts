@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { OpenAiModule } from './open-ai/open-ai.module';
+import { UserModule } from './user/user.module';
 import * as path from 'path';
 
 @Module({
@@ -14,6 +15,7 @@ import * as path from 'path';
     }),
     AuthModule,
     OpenAiModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
