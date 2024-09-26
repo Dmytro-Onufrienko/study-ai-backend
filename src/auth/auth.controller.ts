@@ -10,23 +10,20 @@ export class AuthController {
   @Post('sign-in')
   async signIn(
     @Body() body: { email: string; password: string },
-    @Res({ passthrough: true }) response: Response,
   ) {
     const { email, password } = body;
     const { idToken, refreshToken } = await this.authService.signIn(email, password);
 
-    response.cookie('accessToken', idToken, { httpOnly: true, secure: true });
-    response.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-
-    return { message: 'Login successful' };
+    return {
+      message: 'Login successful',
+      accessToken: idToken,
+      refreshToken: refreshToken,
+    };
   }
 
   @Post('sign-out')
   async signOut(@Res({ passthrough: true }) response: Response) {
     await this.authService.signOut();
-
-    response.clearCookie('accessToken');
-    response.clearCookie('refreshToken');
 
     return { message: 'Logout successful' };
   }

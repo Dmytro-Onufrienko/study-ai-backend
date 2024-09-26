@@ -1,7 +1,7 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FirebaseAuthGuard } from 'src/auth/gurads/firebase-auth.guard';
-import { UserIdFromCookies } from './decorators/UserId';
+import { UserIdFromHeaders } from './decorators/UserIdFromHeaders';
 
 @Controller('user')
 export class UserController {
@@ -9,7 +9,7 @@ export class UserController {
 
   @UseGuards(FirebaseAuthGuard)
   @Get()
-  async getCurrentUser(@UserIdFromCookies() userId: string) {
+  async getCurrentUser(@UserIdFromHeaders() userId: string) {
     return await this.userService.getCurrentUser(userId);
   }
 }

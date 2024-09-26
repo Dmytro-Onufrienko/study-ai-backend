@@ -5,6 +5,9 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { OpenAiModule } from './open-ai/open-ai.module';
 import { UserModule } from './user/user.module';
+import { FirebaseModule } from './firebase/firebase.module';
+import { DatabaseModule } from './database/database.module';
+import { CourseModule } from './course/course.module';
 import * as path from 'path';
 
 @Module({
@@ -16,6 +19,9 @@ import * as path from 'path';
     AuthModule,
     OpenAiModule,
     UserModule,
+    FirebaseModule,
+    DatabaseModule,
+    CourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
