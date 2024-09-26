@@ -6,14 +6,18 @@ import { Collection } from 'src/database/config/collections';
 
 @Injectable()
 export class CourseService {
-  constructor(private dbService: DatabaseService) {}
+  private collectionName: Collection;
 
-  create(courseData: CreateCourseDto) {
-    return this.dbService.create(Collection.COURSE, courseData);
+  constructor(private dbService: DatabaseService) {
+    this.collectionName = Collection.COURSE
   }
 
-  findAll() {
-    return `This action returns all course`;
+  create(courseData: CreateCourseDto, userId: string) {
+    return this.dbService.create(this.collectionName, {...courseData, userId});
+  }
+
+  findAll(userId: string) {
+    return this.dbService.getAllByUserId(this.collectionName, userId);
   }
 
   findOne(id: number) {
