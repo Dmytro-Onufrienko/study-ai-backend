@@ -1,3 +1,5 @@
 export enum Collection {
-  COURSE = 'course'
+  COURSE = 'course',
+  TOPIC = 'topic',
+  SUBTOPIC = 'subtopic',
 }

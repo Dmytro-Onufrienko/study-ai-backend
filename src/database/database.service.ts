@@ -30,9 +30,9 @@ export class DatabaseService {
     CollectionType extends IBaseEntity
   >(
     collectionName: Collection,
-    collectionId: string
+    documentId: string
   ): Promise<CollectionType> {
-    return await this.getDoc<CollectionType>(collectionName, collectionId);
+    return await this.getDoc<CollectionType>(collectionName, documentId);
   }
 
   async getAllByUserId<
@@ -73,9 +73,9 @@ export class DatabaseService {
     CollectionType extends IBaseEntity
   >(
     collectionName: Collection,
-    collectionId: string
+    documentId: string
   ): Promise<CollectionType> {
-    const docSnap = await getDoc(doc(this.getCollection(collectionName), collectionId))
+    const docSnap = await getDoc(doc(this.getCollection(collectionName), documentId))
 
     if (docSnap.exists()) {
       const {
@@ -93,6 +93,13 @@ export class DatabaseService {
     } else {
       throw new Error('Document not found');
     }
+  }
+
+  getDocRef<CollectionType extends IBaseEntity>(
+    collectionName: Collection,
+    documentId: string
+  ): DocumentReference<CollectionType> {
+    return doc(this.getCollection(collectionName), documentId) as DocumentReference<CollectionType>;
   }
 
   getCollection(collectionName: Collection) {

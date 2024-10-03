@@ -3,12 +3,18 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { Collection } from 'src/database/config/collections';
+import { ICourse } from './entities/course.entity';
+import { TopicService } from 'src/topic/topic.service';
+import { DocumentReference } from 'firebase/firestore';
 
 @Injectable()
 export class CourseService {
   private collectionName: Collection;
 
-  constructor(private dbService: DatabaseService) {
+  constructor(
+    private dbService: DatabaseService,
+    private topicService: TopicService,
+  ) {
     this.collectionName = Collection.COURSE
   }
 
@@ -20,8 +26,15 @@ export class CourseService {
     return this.dbService.getAllByUserId(this.collectionName, userId);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} course`;
+  async findOne(id: string) {
+    const course = await this.dbService.getById<ICourse>(this.collectionName, id);
+    const courseRef: DocumentReference<ICourse> = this.dbService.getDocRef(this.collectionName, id);
+    const topics = await this.topicService.findAllByCourse(courseRef);
+
+    return {
+      ...course,
+      topics,
+    };
   }
 
   update(id: number, updateCourseDto: UpdateCourseDto) {

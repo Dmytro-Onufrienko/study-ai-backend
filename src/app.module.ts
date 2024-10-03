@@ -8,6 +8,8 @@ import { UserModule } from './user/user.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { DatabaseModule } from './database/database.module';
 import { CourseModule } from './course/course.module';
+import { TopicModule } from './topic/topic.module';
+import { SubtopicModule } from './subtopic/subtopic.module';
 import * as path from 'path';
 
 @Module({
@@ -22,6 +24,8 @@ import * as path from 'path';
     FirebaseModule,
     DatabaseModule,
     CourseModule,
+    TopicModule,
+    SubtopicModule,
   ],
   controllers: [AppController],
   providers: [AppService],

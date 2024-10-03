@@ -1,9 +1,8 @@
-import { IBaseEntity, BaseEntity } from "src/database/interfaces/base.entity";
+import { IBaseEntity } from "src/database/interfaces/base.entity";
+import { DocumentReference } from 'firebase/firestore';
+import { ITopic } from "src/topic/entities/topic.entity";
 
 export interface ICourse extends IBaseEntity {
   name: string;
-}
-
-export class Course extends BaseEntity implements ICourse {
-  name: string;
+  topics: DocumentReference<ITopic>[];
 }

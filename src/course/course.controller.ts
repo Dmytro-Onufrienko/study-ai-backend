@@ -24,7 +24,7 @@ export class CourseController {
   @UseGuards(FirebaseAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.courseService.findOne(+id);
+    return this.courseService.findOne(id);
   }
 
   @UseGuards(FirebaseAuthGuard)
