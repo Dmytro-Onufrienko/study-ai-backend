@@ -11,6 +11,7 @@ export class AuthController {
   async signIn(
     @Body() body: { email: string; password: string },
   ) {
+    console.log('sign in', body)
     const { email, password } = body;
     const { idToken, refreshToken } = await this.authService.signIn(email, password);
 

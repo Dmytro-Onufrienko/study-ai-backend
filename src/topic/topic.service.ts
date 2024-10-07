@@ -6,24 +6,33 @@ import { Collection } from 'src/database/config/collections';
 import { DatabaseService } from 'src/database/database.service';
 import { ICourse } from 'src/course/entities/course.entity';
 import { ITopic } from './entities/topic.entity';
+import { SubtopicService } from 'src/subtopic/subtopic.service';
 
 @Injectable()
 export class TopicService {
   private collectionName: Collection;
 
-  constructor(private dbService: DatabaseService) {
+  constructor(
+    private dbService: DatabaseService,
+    private subtopicService: SubtopicService,
+  ) {
     this.collectionName = Collection.TOPIC
   }
-  create(createTopicDto: CreateTopicDto) {
-    return 'This action adds a new topic';
+
+  async create({ name, subtopics }: CreateTopicDto) {
+    const subtopicRefs = await Promise.all(subtopics.map((subtopic: string) => {
+      return this.subtopicService.create({name: subtopic})
+    }))
+    
+    return await this.dbService.create(this.collectionName, {name, subtopics: subtopicRefs})
   }
 
   findAll() {
     return `This action returns all topic`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} topic`;
+  findOne(id: string) {
+    return this.dbService.getById<ITopic>(this.collectionName, id);
   }
 
   findAllByCourse(courseRef: DocumentReference<ICourse>): Promise<ITopic[]> {

@@ -1,0 +1,3 @@
+export const getCreateCoursePropmt = (courseTopic: string) => {
+  return `You are an assistant for generating a structured learning topic list in JSON format. The JSON object should contain a set of main topics, each with an array of subtopics. Below is the subject you need to break down: ${courseTopic} Only return a valid JSON object. Do not include any additional text, comments, or explanations. The output should be structured as: { "topics": [ { "name": "Main Topic 1", "subtopics": ["Subtopic 1", "Subtopic 2", "Subtopic 3"] }, { "name": "Main Topic 2", "subtopics": ["Subtopic 1", "Subtopic 2", "Subtopic 3"] } ] }`
+}

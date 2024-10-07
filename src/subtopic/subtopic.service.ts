@@ -5,7 +5,7 @@ import { Collection } from 'src/database/config/collections';
 import { DatabaseService } from 'src/database/database.service';
 import { ISubtopic } from 'src/course/entities/subtopic.entity';
 import { ITopic } from 'src/topic/entities/topic.entity';
-import { DocumentReference, where } from 'firebase/firestore';
+import { DocumentData, DocumentReference, where } from 'firebase/firestore';
 
 @Injectable()
 export class SubtopicService {
@@ -15,8 +15,10 @@ export class SubtopicService {
     this.collectionName = Collection.SUBTOPIC
   }
 
-  create(createSubtopicDto: CreateSubtopicDto) {
-    return 'This action adds a new subtopic';
+  create(
+    createSubtopicDto: CreateSubtopicDto
+  ): Promise<DocumentReference<ISubtopic, DocumentData>> {
+    return this.dbService.create(this.collectionName, createSubtopicDto) as unknown as Promise<DocumentReference<ISubtopic, DocumentData>>;
   }
 
   findAll() {

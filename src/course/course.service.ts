@@ -5,7 +5,10 @@ import { DatabaseService } from 'src/database/database.service';
 import { Collection } from 'src/database/config/collections';
 import { ICourse } from './entities/course.entity';
 import { TopicService } from 'src/topic/topic.service';
-import { DocumentReference } from 'firebase/firestore';
+import { DocumentData, DocumentReference } from 'firebase/firestore';
+import { OpenAiService } from 'src/open-ai/open-ai.service';
+import { ITopicResponse } from './interfaces/course-response.interface';
+import { ITopic } from 'src/topic/entities/topic.entity';
 
 @Injectable()
 export class CourseService {
@@ -14,12 +17,19 @@ export class CourseService {
   constructor(
     private dbService: DatabaseService,
     private topicService: TopicService,
+    private openAiService: OpenAiService,
   ) {
     this.collectionName = Collection.COURSE
   }
 
-  create(courseData: CreateCourseDto, userId: string) {
-    return this.dbService.create(this.collectionName, {...courseData, userId});
+  async create({ name }: CreateCourseDto, userId: string) {
+    const { topics } = await this.openAiService.createCourse(name);
+
+    const topicRefs = await Promise.all(topics.map((topic: ITopicResponse) => {
+      return this.topicService.create(topic);
+    }));
+
+    return this.dbService.create(this.collectionName, {name, userId, topics: topicRefs});
   }
 
   findAll(userId: string) {
@@ -28,8 +38,9 @@ export class CourseService {
 
   async findOne(id: string) {
     const course = await this.dbService.getById<ICourse>(this.collectionName, id);
-    const courseRef: DocumentReference<ICourse> = this.dbService.getDocRef(this.collectionName, id);
-    const topics = await this.topicService.findAllByCourse(courseRef);
+    const topics = await Promise.all(course.topics.map((topicRef: DocumentReference<ITopic, DocumentData>) => {
+      return this.topicService.findOne(topicRef.id)
+    }));
 
     return {
       ...course,

@@ -1,1 +1,3 @@
-export class CreateSubtopicDto {}
+export class CreateSubtopicDto {
+  name: string;
+}

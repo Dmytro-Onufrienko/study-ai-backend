@@ -13,7 +13,10 @@ export class DatabaseService {
     this.db = firestoreDB;
   }
 
-  async create(collectionName: Collection, collectionData: any): Promise<DocumentReference<any, DocumentData>> {
+  async create<CollectionType>(
+    collectionName: Collection,
+    collectionData: CollectionType
+  ): Promise<DocumentReference<CollectionType, DocumentData>> {
     const currentDate = new Date();
 
     return await addDoc(
@@ -23,7 +26,7 @@ export class DatabaseService {
         createdAt: currentDate,
         updatedAt: currentDate
       }
-    )
+    ) as DocumentReference<CollectionType, DocumentData>
   }
 
   async getById<
