@@ -19,7 +19,7 @@ export class SubtopicController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.subtopicService.findOne(+id);
+    return this.subtopicService.findOne(id);
   }
 
   @Patch(':id')

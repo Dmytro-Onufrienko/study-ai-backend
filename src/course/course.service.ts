@@ -38,8 +38,8 @@ export class CourseService {
 
   async findOne(id: string) {
     const course = await this.dbService.getById<ICourse>(this.collectionName, id);
-    const topics = await Promise.all(course.topics.map((topicRef: DocumentReference<ITopic, DocumentData>) => {
-      return this.topicService.findOne(topicRef.id)
+    const topics = await Promise.all(course.topics.map(({ id }: DocumentReference<ITopic, DocumentData>) => {
+      return this.topicService.findOne(id)
     }));
 
     return {

@@ -29,8 +29,8 @@ export class SubtopicService {
     return this.dbService.getMany<ISubtopic>(this.collectionName, [where('topic', '==', topicRef)]);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} subtopic`;
+  async findOne(id: string) {
+    return await this.dbService.getById(this.collectionName, id);
   }
 
   update(id: number, updateSubtopicDto: UpdateSubtopicDto) {

@@ -1,4 +1,4 @@
-import { DocumentReference, where } from 'firebase/firestore';
+import { DocumentData, DocumentReference, where } from 'firebase/firestore';
 import { Injectable } from '@nestjs/common';
 import { CreateTopicDto } from './dto/create-topic.dto';
 import { UpdateTopicDto } from './dto/update-topic.dto';
@@ -7,6 +7,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { ICourse } from 'src/course/entities/course.entity';
 import { ITopic } from './entities/topic.entity';
 import { SubtopicService } from 'src/subtopic/subtopic.service';
+import { ISubtopic } from 'src/course/entities/subtopic.entity';
 
 @Injectable()
 export class TopicService {
@@ -31,8 +32,16 @@ export class TopicService {
     return `This action returns all topic`;
   }
 
-  findOne(id: string) {
-    return this.dbService.getById<ITopic>(this.collectionName, id);
+  async findOne(id: string) {
+    const topic = await this.dbService.getById<ITopic>(this.collectionName, id);
+    const subtopics = await Promise.all(topic.subtopics.map(({ id }: DocumentReference<ISubtopic, DocumentData>) => {
+      return this.subtopicService.findOne(id);
+    }));
+    
+    return {
+      ...topic,
+      subtopics
+    };
   }
 
   findAllByCourse(courseRef: DocumentReference<ICourse>): Promise<ITopic[]> {
