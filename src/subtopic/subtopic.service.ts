@@ -1,28 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSubtopicDto } from './dto/create-subtopic.dto';
-import { UpdateSubtopicDto } from './dto/update-subtopic.dto';
 import { Collection } from 'src/database/config/collections';
 import { DatabaseService } from 'src/database/database.service';
 import { ISubtopic } from 'src/course/entities/subtopic.entity';
 import { ITopic } from 'src/topic/entities/topic.entity';
 import { DocumentData, DocumentReference, where } from 'firebase/firestore';
+import { OpenAiService } from 'src/open-ai/open-ai.service';
 
 @Injectable()
 export class SubtopicService {
   private collectionName: Collection;
 
-  constructor(private dbService: DatabaseService) {
+  constructor(
+    private dbService: DatabaseService,
+    private openAiService: OpenAiService,
+  ) {
     this.collectionName = Collection.SUBTOPIC
   }
 
-  create(
+  async create(
     createSubtopicDto: CreateSubtopicDto
   ): Promise<DocumentReference<ISubtopic, DocumentData>> {
-    return this.dbService.create(this.collectionName, createSubtopicDto) as unknown as Promise<DocumentReference<ISubtopic, DocumentData>>;
-  }
-
-  findAll() {
-    return `This action returns all subtopic`;
+    return await this.dbService.create(this.collectionName, createSubtopicDto) as DocumentReference<ISubtopic, DocumentData>;
   }
 
   findAllByCourse(topicRef: DocumentReference<ITopic>): Promise<ISubtopic[]> {
@@ -30,14 +29,6 @@ export class SubtopicService {
   }
 
   async findOne(id: string) {
-    return await this.dbService.getById(this.collectionName, id);
-  }
-
-  update(id: number, updateSubtopicDto: UpdateSubtopicDto) {
-    return `This action updates a #${id} subtopic`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} subtopic`;
+    return await this.dbService.getById<ISubtopic>(this.collectionName, id);
   }
 }

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCourseDto } from './dto/create-course.dto';
-import { UpdateCourseDto } from './dto/update-course.dto';
+import { CreateCourseDto } from './dto';
 import { DatabaseService } from 'src/database/database.service';
 import { Collection } from 'src/database/config/collections';
 import { ICourse } from './entities/course.entity';
 import { TopicService } from 'src/topic/topic.service';
-import { DocumentData, DocumentReference } from 'firebase/firestore';
+import { DocumentData, DocumentReference, where } from 'firebase/firestore';
 import { OpenAiService } from 'src/open-ai/open-ai.service';
-import { ITopicResponse } from './interfaces/course-response.interface';
+import { ICourseResponse, ITopicResponse } from './interfaces/course-response.interface';
 import { ITopic } from 'src/topic/entities/topic.entity';
+import { getCreateCoursePropmt } from 'src/open-ai/prompts';
 
 @Injectable()
 export class CourseService {
@@ -23,13 +23,15 @@ export class CourseService {
   }
 
   async create({ name }: CreateCourseDto, userId: string) {
-    const { topics } = await this.openAiService.createCourse(name);
+    const prompt = getCreateCoursePropmt(name);
+    const { topics } = await this.openAiService.createComplention<ICourseResponse>(prompt);
+    const course = await this.dbService.create(this.collectionName, { name, userId }) as DocumentReference<ICourse>;
 
     const topicRefs = await Promise.all(topics.map((topic: ITopicResponse) => {
-      return this.topicService.create(topic);
+      return this.topicService.create({...topic, course});
     }));
 
-    return this.dbService.create(this.collectionName, {name, userId, topics: topicRefs});
+    return this.dbService.update<ICourse>(this.collectionName, course.id, { topics: topicRefs })
   }
 
   findAll(userId: string) {
@@ -38,21 +40,21 @@ export class CourseService {
 
   async findOne(id: string) {
     const course = await this.dbService.getById<ICourse>(this.collectionName, id);
-    const topics = await Promise.all(course.topics.map(({ id }: DocumentReference<ITopic, DocumentData>) => {
-      return this.topicService.findOne(id)
-    }));
+    if (!course.topics || course.topics.length === 0) {
+      return { ...course, topics: [] };
+    }
+
+    const topicIds = course.topics.map(
+      (topicRef: DocumentReference<ITopic>) => topicRef.id
+    );
+
+    const topics = await this.dbService.getMany<ITopic>(Collection.TOPIC, [
+      where('__name__', 'in', topicIds),
+    ]);
 
     return {
       ...course,
       topics,
     };
-  }
-
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} course`;
   }
 }

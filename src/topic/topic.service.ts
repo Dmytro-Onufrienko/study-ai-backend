@@ -1,7 +1,6 @@
 import { DocumentData, DocumentReference, where } from 'firebase/firestore';
 import { Injectable } from '@nestjs/common';
-import { CreateTopicDto } from './dto/create-topic.dto';
-import { UpdateTopicDto } from './dto/update-topic.dto';
+import { CreateTopicDto } from './dto';
 import { Collection } from 'src/database/config/collections';
 import { DatabaseService } from 'src/database/database.service';
 import { ICourse } from 'src/course/entities/course.entity';
@@ -20,39 +19,40 @@ export class TopicService {
     this.collectionName = Collection.TOPIC
   }
 
-  async create({ name, subtopics }: CreateTopicDto) {
-    const subtopicRefs = await Promise.all(subtopics.map((subtopic: string) => {
-      return this.subtopicService.create({name: subtopic})
+  async create({ name, subtopics, course }: CreateTopicDto) {
+    const topic = await this.dbService.create(this.collectionName, { name, course }) as DocumentReference<ITopic>
+
+    const subtopicRefs: DocumentReference<ISubtopic>[] = await Promise.all(subtopics.map((subtopic: string) => {
+      return this.subtopicService.create({name: subtopic, topic})
     }))
     
-    return await this.dbService.create(this.collectionName, {name, subtopics: subtopicRefs})
-  }
+    await this.dbService.update<ITopic>(this.collectionName, topic.id, { subtopics: subtopicRefs });
 
-  findAll() {
-    return `This action returns all topic`;
+    return topic;
   }
 
   async findOne(id: string) {
     const topic = await this.dbService.getById<ITopic>(this.collectionName, id);
-    const subtopics = await Promise.all(topic.subtopics.map(({ id }: DocumentReference<ISubtopic, DocumentData>) => {
-      return this.subtopicService.findOne(id);
-    }));
-    
+
+    if (!topic.subtopics || topic.subtopics.length === 0) {
+      return { ...topic, subtopics: [] };
+    }
+
+    const subtopicIds = topic.subtopics.map(
+      (subtopicRef: DocumentReference<ISubtopic>) => subtopicRef.id
+    );
+
+    const subtopics = await this.dbService.getMany<ISubtopic>(Collection.SUBTOPIC, [
+      where('__name__', 'in', subtopicIds),
+    ]);
+  
     return {
       ...topic,
-      subtopics
+      subtopics,
     };
   }
 
   findAllByCourse(courseRef: DocumentReference<ICourse>): Promise<ITopic[]> {
     return this.dbService.getMany<ITopic>(this.collectionName, [where('course', '==', courseRef)]);
-  }
-
-  update(id: number, updateTopicDto: UpdateTopicDto) {
-    return `This action updates a #${id} topic`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} topic`;
   }
 }

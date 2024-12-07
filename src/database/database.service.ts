@@ -1,4 +1,4 @@
-import { Firestore, addDoc, collection } from '@firebase/firestore';
+import { Firestore, addDoc, collection, updateDoc } from '@firebase/firestore';
 import { Injectable } from '@nestjs/common';
 import { firestoreDB } from 'src/firebase/config/firebase';
 import { Collection } from './config/collections';
@@ -45,6 +45,20 @@ export class DatabaseService {
     userId: string
   ): Promise<CollectionType[]> {
     return await this.getMany(collectionName, [where('userId', '==', userId)]);
+  }
+
+  async update<CollectionType extends IBaseEntity>(
+    collectionName: Collection,
+    documentId: string,
+    updatedData: Partial<CollectionType>
+  ) {
+    const currentDate = new Date();
+    const docRef = this.getDocRef<CollectionType>(collectionName, documentId);
+
+    return await updateDoc(docRef, {
+      ...updatedData,
+      updatedAt: currentDate
+    });
   }
 
   async getMany<
