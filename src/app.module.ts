@@ -11,6 +11,7 @@ import { CourseModule } from './course/course.module';
 import { TopicModule } from './topic/topic.module';
 import { SubtopicModule } from './subtopic/subtopic.module';
 import { BaseApiModule } from './base-api/base-api.module';
+import { PaypalModule } from './paypal/paypal.module';
 import * as path from 'path';
 
 @Module({
@@ -28,6 +29,7 @@ import * as path from 'path';
     TopicModule,
     SubtopicModule,
     BaseApiModule,
+    PaypalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
