@@ -10,6 +10,7 @@ import { DatabaseModule } from './database/database.module';
 import { CourseModule } from './course/course.module';
 import { TopicModule } from './topic/topic.module';
 import { SubtopicModule } from './subtopic/subtopic.module';
+import { BaseApiModule } from './base-api/base-api.module';
 import * as path from 'path';
 
 @Module({
@@ -26,6 +27,7 @@ import * as path from 'path';
     CourseModule,
     TopicModule,
     SubtopicModule,
+    BaseApiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
